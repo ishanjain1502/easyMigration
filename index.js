@@ -1,11 +1,15 @@
 const mongoose = require('mongoose');
+const {writeLog} = require('./logger');
 
-const processMigration = async ({ uri, options={}} , primaryCollection ,arrayOfCOllectionsRequired, callbackFunc, {limitOptions=1}) => {
+const processMigration = async ({ uri, options={}} , primaryCollection ,arrayOfCOllectionsRequired, callbackFunc, {limitOptions=1, pKey=null}) => {
     try{
 
         await mongoose.connect(uri, options);
-        const dbDataPointer = getData({ limit: 100 }, primaryCollection);
         console.log('Connected to the database');
+        const dbDataPointer = getData({ limit: 100 }, primaryCollection);
+
+        // write log to initiate migration
+        writeLog('initiate_migration');
 
         while (true) {
             let data = await dbDataPointer.next().value;
@@ -13,11 +17,14 @@ const processMigration = async ({ uri, options={}} , primaryCollection ,arrayOfC
                 console.log("Empty data");
                 break;
             }
-            await performOperation(data, arrayOfCOllectionsRequired, callbackFunc);
+            await performOperation(data, arrayOfCOllectionsRequired, callbackFunc, pKey);
         }
 
+        writeLog('migration_complete');
         // Close the connection
         mongoose.connection.close();
+
+        writeLog('close_connection');
 
         process.exit(0);
 
@@ -41,10 +48,12 @@ function* getData(options = { limit: 100 }, primaryCollection) {
     }
 }
 
-async function performOperation(data, arrayOfCOllectionsRequired, callbackFunc) {
+async function performOperation(data, arrayOfCOllectionsRequired, callbackFunc, pKey) {
     try{
 
-       await callbackFunc(data, ...arrayOfCOllectionsRequired);
+    //    writeLog("Initial State of Primary Record", data);
+       await callbackFunc(data, ...arrayOfCOllectionsRequired, writeLog);
+    //    writeLog("Updated State of Primary Record", data);
 
     }catch(err){
         console.log(err);

@@ -40,13 +40,21 @@ let ternaryCollection = require("./models/ternaryCollection");
 
 let callbackFn = require("./migrations/updateNewFieldsInDB);
 
+// the callbackFn should consists of what logic you want to impliment on per record basis, as this will be called inside a loop.
+
 processMigration( { uri:mongoDB_URI, options: {
         // this includes further options that you want to pair up with mongodb
     }},
     primaryCollection,
     [ primaryCollection, secondaryCollection, ternaryCollection ],
-    callbackFn
+    callbackFn( data, primaryCollection, secondaryCollection, ternaryCollection, writeLog ) // spread apart your collections here
+
+    // you can use writeLog function to write your logs on system which will get saved inside a folder migrationLogs
 )
+/**
+    writeLog(action, logContent);
+    you can directly call this function inside your callback
+*/
 
 ```
 
