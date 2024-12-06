@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 const {writeLog} = require('./logger');
 
-const processMigration = async ({ uri, options={}} , primaryCollection ,arrayOfCOllectionsRequired, callbackFunc, {limitOptions=1, pKey=null}) => {
+const processMigration = async ({ uri, options={}} , primaryCollection ,arrayOfCOllectionsRequired, callbackFunc, {limitOptions=1}) => {
     try{
 
         await mongoose.connect(uri, options);
@@ -17,7 +17,7 @@ const processMigration = async ({ uri, options={}} , primaryCollection ,arrayOfC
                 console.log("Empty data");
                 break;
             }
-            await performOperation(data, arrayOfCOllectionsRequired, callbackFunc, pKey);
+            await performOperation(data, arrayOfCOllectionsRequired, callbackFunc );
         }
 
         writeLog('migration_complete');
@@ -48,12 +48,10 @@ function* getData(options = { limit: 100 }, primaryCollection) {
     }
 }
 
-async function performOperation(data, arrayOfCOllectionsRequired, callbackFunc, pKey) {
+async function performOperation(data, arrayOfCOllectionsRequired, callbackFunc ) {
     try{
 
-    //    writeLog("Initial State of Primary Record", data);
        await callbackFunc(data, ...arrayOfCOllectionsRequired, writeLog);
-    //    writeLog("Updated State of Primary Record", data);
 
     }catch(err){
         console.log(err);
