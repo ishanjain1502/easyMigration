@@ -5,7 +5,7 @@ const fs = require('fs');
 
 const processMigration = async ({ uri, options={}} , primaryCollection ,arrayOfCOllectionsRequired, callbackFunc, {limitOptions=1}) => {
     try{
-
+// chi tapak dum dum
         await mongoose.connect(uri, options);
         console.log('Connected to the database');
         const dbDataPointer = getData({ limit: 100 }, primaryCollection);
